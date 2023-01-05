@@ -1,0 +1,9 @@
+.tablero{
+    display: grid;
+    grid-template-columns: repeat(8, 50px);
+    grid-template-rows: repeat(8, 50px);
+}
+.tableroCasillero{
+    width: 50px;
+    height: 50px;
+}
