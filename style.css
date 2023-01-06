@@ -1,9 +1,59 @@
-.tablero{
-    display: grid;
-    grid-template-columns: repeat(8, 50px);
-    grid-template-rows: repeat(8, 50px);
+main {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  width: auto;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
 }
-.tableroCasillero{
-    width: 50px;
-    height: 50px;
+
+:root {
+  --colorPrincipalMesa: #d7b88e;
+  --colorSecundarioMesa: #672922;
+  --colorMarco: #421a13;
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -48px;
+}
+.game h1 {
+  margin-bottom: 48px;
+}
+
+.tablero {
+  display: grid;
+  grid-template-columns: repeat(8, 50px);
+  grid-template-rows: repeat(8, 50px);
+  border: solid 40px var(--colorMarco);
+}
+.tableroCasillero {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-content: center;
+}
+
+.casilleroPrincipal {
+  background-color: var(--colorPrincipalMesa);
+}
+.casilleroSecundario {
+  background-color: var(--colorSecundarioMesa);
+}
+
+.ficha{
+    width: 40px;
+}
+
+.peon{
+    
+}
+
+.hide{
+    visibility: hidden;
+}
+
+.drag-over {
+    border: solid 2px red;
 }
