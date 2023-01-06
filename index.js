@@ -14,6 +14,15 @@ let casillas = [
     "1A", "1B", "1C", "1D", "1E", "1F", "1G", "1H"
 ];
 
+let fichas = [];
+
+for (let i = 0; i < 2; i++) {
+  let o = document.createElement("img");
+  fichas.push(o);
+}
+
+console.log(fichas);
+
 //Asigno los ID a cada casilla del tablero
 for (let i = 0; i < tablero.children.length; i++) {
   tablero.children[i].id = casillas[i];
@@ -54,91 +63,161 @@ for (let i = 0; i < 64; i++) {
   }
 }
 
+let bool = true;
+
 class Ficha {
-  constructor(tipo, posicion) {
-    this.posicionActual = posicion;
-    this.posicionSiguiente = "";
+  constructor(tipo, posicion, id) {
+    this.posicionSiguiente = posicion;
+    this.posicionActual = this.posicionSiguiente;
     this.tipo = tipo;
-    this.ficha = document.createElement("img");
+    this.ficha = fichas[id];
+    this.id = id;
   }
+}
+
+// class PeonW extends Ficha {
+//   createFicha(){
+//         this.ficha.setAttribute("src", `/img/peonW.png`);
+//         this.ficha.classList.add("ficha");
+//         this.ficha.classList.add("peonW");
+//         document.getElementById(this.posicionActual).appendChild(this.ficha);
+//     return this.ficha;
+//   }
+
+//   moverFicha() {
+
+//     if(bool){
+//       this.ficha.addEventListener("dragstart", (e) => {
+//         //Crea un evento que comienza cuando el elemento está siendo arrastrado
+//         if (e) {
+//           setTimeout(() => {
+//             // Se coloca un timeout para que el elemento no desaparezca apenas es tocado
+//             this.ficha.classList.add("hide");
+//           });
+//         }
+//       });
+
+//       for (const casilla of allCasillas) {
+//         //Recorro la lista de nodos allCasillas para agregar los eventos a cada casilla
+//         casilla.addEventListener("dragenter", (e) => {
+//           if (e.target.classList.contains("dropzone")) {
+//             e.target.classList.add("drag-over");
+//           }
+//           e.preventDefault();
+//         });
+
+//         casilla.addEventListener("dragover", (e) => {
+//           if (e.target.classList.contains("dropzone")) {
+//             e.target.classList.add("drag-over"); //Le agrega el borde cuando el objeto está sobre el casillero
+//           }
+//           e.preventDefault();
+//         });
+
+//         casilla.addEventListener("dragleave", (e) => {
+//           if (e.target.classList.contains("dropzone")) {
+//             e.target.classList.remove("drag-over"); //Le quita el borde cuando el objeto deja de pasar sobre la casilla
+//           }
+//         });
+
+//         casilla.addEventListener("dragend", (e) =>{
+//           this.ficha.classList.remove("hide"); //Si la ficha no se asigna a una nueva posicion se le quita el hide
+//         })
+
+//         casilla.addEventListener("drop", (e) => {
+//           //Se ejecuta cuando el elemento es dropeado en el target
+//           if (e.target.classList.contains("dropzone")) {
+//             e.target.classList.remove("drag-over"); //Le quita el borde cuando el objeto es depositado en la casilla
+//           }
+//           e.preventDefault();
+//           if (e.target.classList.contains("dropzone")) {
+//             this.ficha.parentNode.removeChild(this.ficha); //Elimina el propio elemento del nodo padre
+//             e.target.appendChild(this.ficha); //Lo agrega al objetivo del evento
+//             this.ficha.classList.remove("hide"); //Retiro la clase que lo hace invisible
+//           }
+//         });
+//         bool = false;
+//       }
+//     }
+//     }
+// }
+
+class Peon extends Ficha {
 
   createFicha() {
-    switch (this.tipo) {
-      case "peon":
-        this.ficha.setAttribute("src", `/img/peon.png`);
-        this.ficha.classList.add("ficha");
-        this.ficha.classList.add("peon");
-        break;
-
-        case "peonW":
-        this.ficha.setAttribute("src", `/img/peonW.png`);
-        this.ficha.classList.add("ficha");
-        this.ficha.classList.add("peonW");
-        break;
-    }
-
+    this.ficha.setAttribute("src", `/img/peon.png`);
+    this.ficha.classList.add("ficha");
+    this.ficha.classList.add("peon");
+    this.ficha.id = this.id;
+    this.droppable = false;
     document.getElementById(this.posicionActual).appendChild(this.ficha);
     return this.ficha;
   }
 
   moverFicha() {
+    if(this.id === id){
     this.ficha.addEventListener("dragstart", (e) => {
+      console.log(e.target.parentNode.childNodes[0].id)
+      console.log(this.ficha.id)
       //Crea un evento que comienza cuando el elemento está siendo arrastrado
       if (e) {
         setTimeout(() => {
           // Se coloca un timeout para que el elemento no desaparezca apenas es tocado
           this.ficha.classList.add("hide");
         });
+          
+          //Recorro la lista de nodos allCasillas para agregar los eventos a cada casilla
+          for (const casilla of allCasillas) {
+            casilla.addEventListener("dragenter", (e) => {
+              if (e.target.classList.contains("dropzone")) {
+                e.target.classList.add("drag-over");
+              }
+              e.preventDefault();
+            });
+
+            casilla.addEventListener("dragover", (e) => {
+              if (e.target.classList.contains("dropzone")) {
+                e.target.classList.add("drag-over"); //Le agrega el borde cuando el objeto está sobre el casillero
+                this.posicionSiguiente = e.target.id;
+              }
+              e.preventDefault();
+            });
+
+            casilla.addEventListener("dragleave", (e) => {
+              if (e.target.classList.contains("dropzone")) {
+                e.target.classList.remove("drag-over"); //Le quita el borde cuando el objeto deja de pasar sobre la casilla
+              }
+            });
+
+            casilla.addEventListener("dragend", (e) => {
+              this.ficha.classList.remove("hide"); //Si la ficha no se asigna a una nueva posicion se le quita el hide
+            });
+
+            casilla.addEventListener("drop", (e) => {
+              //Se ejecuta cuando el elemento es dropeado en el target
+              if (e.target.classList.contains("dropzone")) {
+                e.target.classList.remove("drag-over"); //Le quita el borde cuando el objeto es depositado en la casilla
+                this.ficha.parentNode.removeChild(fichas[this.id]); //Elimina el propio elemento del nodo padre
+                e.target.appendChild(fichas[this.id]); //Lo agrega al objetivo del evento
+                this.ficha.classList.remove("hide"); //Retiro la clase que lo hace invisible
+                this.posicionActual = this.posicionSiguiente;
+                e.preventDefault();
+              }
+            });
+          }
+      }
+      else{
+        console.log("??")
       }
     });
-
-    for (const casilla of allCasillas) {
-      //Recorro la lista de nodos allCasillas para agregar los eventos a cada casilla
-      casilla.addEventListener("dragenter", (e) => {
-        if (e.target.classList.contains("dropzone")) {
-          e.target.classList.add("drag-over");
-        }
-        e.preventDefault();
-      });
-
-      casilla.addEventListener("dragover", (e) => {
-        if (e.target.classList.contains("dropzone")) {
-          e.target.classList.add("drag-over"); //Le agrega el borde cuando el objeto está sobre el casillero
-        }
-        e.preventDefault();
-      });
-
-      casilla.addEventListener("dragleave", (e) => {
-        if (e.target.classList.contains("dropzone")) {
-          e.target.classList.remove("drag-over"); //Le quita el borde cuando el objeto deja de pasar sobre la casilla
-        }
-      });
-
-      casilla.addEventListener("dragend", (e) =>{
-        this.ficha.classList.remove("hide"); //Si la ficha no se asigna a una nueva posicion se le quita el hide
-      })
-
-      casilla.addEventListener("drop", (e) => {
-        //Se ejecuta cuando el elemento es dropeado en el target
-        if (e.target.classList.contains("dropzone")) {
-          e.target.classList.remove("drag-over"); //Le quita el borde cuando el objeto es depositado en la casilla
-        }
-        e.preventDefault();
-        if (e.target.classList.contains("dropzone")) {
-          this.ficha.parentNode.removeChild(this.ficha); //Elimina el propio elemento del nodo padre
-          e.target.appendChild(this.ficha); //Lo agrega al objetivo del evento
-          this.ficha.classList.remove("hide"); //Retiro la clase que lo hace invisible
-        }
-      });
-    }
   }
 }
+}
 
-let peon = new Ficha("peon", "2H");
-let peon2 = new Ficha("peonW", "4H");
+let peon = new Peon("peon", "2H", 0);
+let peon2 = new Peon("peon", "4H", 1);
+
 
 peon2.createFicha();
 peon2.moverFicha();
 
 peon.createFicha();
-peon.moverFicha();
