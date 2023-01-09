@@ -45,6 +45,7 @@ main {
 
 .ficha{
     width: 40px;
+    background-color: #ffffff00!important;
 }
 
 .peon{
@@ -55,6 +56,10 @@ main {
     visibility: hidden;
 }
 
-.drag-over {
-    border: solid 2px red;
+.undroppable {
+    background-color: rgb(190, 12, 12);
+}
+
+.dropzone{
+  background-color: rgb(104, 224, 104);
 }
