@@ -25,21 +25,33 @@ class PeonNegro extends Ficha {
   }
 
   moveFicha() {
+    this.ficha.ondragover = (event) => {
+      event.preventDefault();
+  };
     //Crea un evento que comienza cuando el elemento está siendo arrastrado
     this.ficha.addEventListener("dragstart", (e) => {
+      
       if (e && newGame.jugadores[0].turno) {
         // Se coloca un timeout para que el elemento no desaparezca apenas es tocado
         setTimeout(() => {
-            for (const casillero of document.querySelectorAll('.dropzone')) {
-                casillero.classList.remove("dropzone")
-            }
+          for (const casillero of document.querySelectorAll(".dropzone")) {
+            casillero.classList.remove("dropzone");
+          }
           this.fichaMovida = true;
           this.ficha.classList.add("hide");
           this.mostrarPosiblesMovimientos().forEach((e) => {
             try {
-              document.getElementById(e).classList.add("dropzone");
-            } catch (error) {
-              console.log("No se pueden mover fichas fuera del casillero")
+              if(document.getElementById(e).childNodes.length === 0){
+                document.getElementById(e).classList.toggle("dropzone");
+              }
+            } catch (error) {}
+          });
+          //Muestra posibles ataques
+          this.mostrarPosiblesAtaques().forEach((e) => {
+            if (document.getElementById(e).childNodes.length > 0) {
+              try {
+                document.getElementById(e).classList.add("eatzone");
+              } catch (error) {}
             }
           });
         });
@@ -47,22 +59,31 @@ class PeonNegro extends Ficha {
     });
 
     this.ficha.addEventListener("click", (e) => {
-      if(newGame.jugadores[0].turno){
-        if (document.getElementsByClassName('dropzone').length === 0) {
-          this.mostrarPosiblesMovimientos().forEach((e) => {
-            document.getElementById(e).classList.toggle("dropzone");
-          });
-        }
-        else{
-          for (const casillero of document.querySelectorAll('.dropzone')) {
-              casillero.classList.remove("dropzone")
-          }
-          this.mostrarPosiblesMovimientos().forEach((e) => {
-              document.getElementById(e).classList.toggle("dropzone");
-            });
-        }
+      for (const casilleroAtaque of document.querySelectorAll(".eatzone")) {
+        casilleroAtaque.classList.remove("eatzone");
       }
-     
+      for (const casillero of document.querySelectorAll(".dropzone")) {
+        casillero.classList.remove("dropzone");
+      }
+
+      if (newGame.jugadores[0].turno) {
+        this.mostrarPosiblesMovimientos().forEach((e) => {
+          if(document.getElementById(e).childNodes.length === 0){
+            document.getElementById(e).classList.toggle("dropzone");
+          }
+          
+        });
+
+        //----------------------------------------------------------------//
+
+        this.mostrarPosiblesAtaques().forEach((e) => {
+          try {
+            if (document.getElementById(e).childNodes[0].id[0] === "B") {
+              document.getElementById(e).classList.toggle("eatzone");
+            }
+          } catch (error){}
+        });
+      }
     });
 
     //Recorro la lista de nodos allCasillas para agregar los eventos a cada casilla
@@ -70,6 +91,9 @@ class PeonNegro extends Ficha {
       casilla.addEventListener("dragenter", (e) => {
         if (!e.target.classList.contains("dropzone") && this.fichaMovida) {
           e.target.classList.add("undroppable");
+        }
+        if(e.target.classList.contains("eatzone")){
+          e.target.childNodes[0].classList.add("prey")
         }
         e.preventDefault();
       });
@@ -86,13 +110,19 @@ class PeonNegro extends Ficha {
         if (!e.target.classList.contains("dropzone") && this.fichaMovida) {
           e.target.classList.remove("undroppable"); //Le quita el borde cuando el objeto deja de pasar sobre la casilla
         }
+        if(e.target.classList.contains("eatzone")){
+          e.target.childNodes[0].classList.remove("prey")
+        }
       });
 
       casilla.addEventListener("dragend", (e) => {
+        for (const casilleroAtaque of document.querySelectorAll(".eatzone")) {
+          casilleroAtaque.classList.remove("eatzone");
+        }
         this.fichaMovida = false;
         this.ficha.classList.remove("hide"); //Si la ficha no se asigna a una nueva posicion se le quita el hide
-        for (const casillero of document.querySelectorAll('.dropzone')) {
-            casillero.classList.remove("dropzone")
+        for (casillero of document.querySelectorAll(".dropzone")) {
+          casillero.classList.remove("dropzone");
         }
       });
 
@@ -103,7 +133,7 @@ class PeonNegro extends Ficha {
         if (
           e.target.classList.contains("dropzone") &&
           this.fichaMovida &&
-          !e.target.hasChildNodes() 
+          !e.target.hasChildNodes()
         ) {
           e.target.appendChild(this.ficha); //Lo agrega al objetivo del evento
           this.ficha.classList.remove("hide"); //Retiro la clase que lo hace invisible
@@ -111,10 +141,41 @@ class PeonNegro extends Ficha {
           this.firstMoveDone = true;
           newGame.jugadores[0].turno = false;
           newGame.jugadores[1].turno = true;
+          document.querySelector(".turn").innerHTML = "Turno de Blancas";
         }
+
+        //---------------------------------------------//
+        if(e.target.classList.contains("eatzone") &&
+          this.fichaMovida
+        ){
+          e.target.removeChild(e.target.children[0]);
+          e.target.appendChild(this.ficha);
+          
+          this.ficha.classList.remove("hide");
+          this.posicionActual = e.target.id;
+          newGame.jugadores[0].turno = false;
+          newGame.jugadores[1].turno = true;
+          document.querySelector(".turn").innerHTML = "Turno de Blancas";
+          e.target.classList.remove("eatzone");
+        }
+
         e.target.classList.remove("undroppable"); //Le quita el borde cuando el objeto es depositado en la casilla
       });
     }
+  }
+
+  mostrarPosiblesAtaques() {
+    let posiblesAtaques = [];
+    let letraANumero = this.posicionActual[1].charCodeAt() - 64;
+    let posiblesMovimiento1 = String.fromCharCode(64 + (letraANumero + 1));
+    let posiblesMovimiento2 = String.fromCharCode(64 + (letraANumero - 1));
+    if (letraANumero + 1 > 0 && letraANumero + 1 < 9) {
+      posiblesAtaques.push(+this.posicionActual[0] + 1 + posiblesMovimiento1);
+    }
+    if (letraANumero - 1 > 0 && letraANumero - 1 < 9) {
+      posiblesAtaques.push(+this.posicionActual[0] + 1 + posiblesMovimiento2);
+    }
+    return posiblesAtaques;
   }
 
   mostrarPosiblesMovimientos() {
@@ -149,26 +210,29 @@ class PeonBlanca extends Ficha {
     this.ficha.classList.add("ficha");
     this.ficha.classList.add("peon");
     this.ficha.id = this.id;
+    this.ficha.ondragover = (event) => {
+      event.preventDefault();
+  };
     document.getElementById(this.posicionActual).appendChild(this.ficha);
     return this.ficha;
   }
 
   moveFicha() {
-       //Crea un evento que comienza cuando el elemento está siendo arrastrado
+    //Crea un evento que comienza cuando el elemento está siendo arrastrado
     this.ficha.addEventListener("dragstart", (e) => {
       if (e && newGame.jugadores[1].turno) {
         // Se coloca un timeout para que el elemento no desaparezca apenas es tocado
         setTimeout(() => {
-            for (const casillero of document.querySelectorAll('.dropzone')) {
-                casillero.classList.remove("dropzone")
-            }
+          for (const casillero of document.querySelectorAll(".dropzone")) {
+            casillero.classList.remove("dropzone");
+          }
           this.fichaMovida = true;
           this.ficha.classList.add("hide");
           this.mostrarPosiblesMovimientos().forEach((e) => {
             try {
               document.getElementById(e).classList.add("dropzone");
             } catch (error) {
-              console.log("No se pueden mover fichas fuera del casillero")
+              console.log("No se pueden mover fichas fuera del casillero");
             }
           });
         });
@@ -176,22 +240,20 @@ class PeonBlanca extends Ficha {
     });
 
     this.ficha.addEventListener("click", (e) => {
-      if(newGame.jugadores[1].turno){
-        if (document.getElementsByClassName('dropzone').length === 0) {
+      if (newGame.jugadores[1].turno) {
+        if (document.getElementsByClassName("dropzone").length === 0) {
+          this.mostrarPosiblesMovimientos().forEach((e) => {
+            document.getElementById(e).classList.toggle("dropzone");
+          });
+        } else {
+          for (const casillero of document.querySelectorAll(".dropzone")) {
+            casillero.classList.remove("dropzone");
+          }
           this.mostrarPosiblesMovimientos().forEach((e) => {
             document.getElementById(e).classList.toggle("dropzone");
           });
         }
-        else{
-          for (const casillero of document.querySelectorAll('.dropzone')) {
-              casillero.classList.remove("dropzone")
-          }
-          this.mostrarPosiblesMovimientos().forEach((e) => {
-              document.getElementById(e).classList.toggle("dropzone");
-            });
-        }
       }
-    
     });
 
     //Recorro la lista de nodos allCasillas para agregar los eventos a cada casilla
@@ -220,8 +282,8 @@ class PeonBlanca extends Ficha {
       casilla.addEventListener("dragend", (e) => {
         this.fichaMovida = false;
         this.ficha.classList.remove("hide"); //Si la ficha no se asigna a una nueva posicion se le quita el hide
-        for (const casillero of document.querySelectorAll('.dropzone')) {
-            casillero.classList.remove("dropzone")
+        for (const casillero of document.querySelectorAll(".dropzone")) {
+          casillero.classList.remove("dropzone");
         }
       });
 
@@ -232,7 +294,7 @@ class PeonBlanca extends Ficha {
         if (
           e.target.classList.contains("dropzone") &&
           this.fichaMovida &&
-          !e.target.hasChildNodes() 
+          !e.target.hasChildNodes()
         ) {
           e.target.appendChild(this.ficha); //Lo agrega al objetivo del evento
           this.ficha.classList.remove("hide"); //Retiro la clase que lo hace invisible
@@ -240,19 +302,20 @@ class PeonBlanca extends Ficha {
           this.firstMoveDone = true;
           newGame.jugadores[1].turno = false;
           newGame.jugadores[0].turno = true;
+          document.querySelector(".turn").innerHTML = "Turno de Negras";
         }
         e.target.classList.remove("undroppable"); //Le quita el borde cuando el objeto es depositado en la casilla
       });
     }
   }
 
-  toggleDroppable(){
+  toggleDroppable() {
     let fichas = document.querySelectorAll(".ficha");
-          fichas.forEach(ficha => {
-            if(ficha[0] === "B"){
-              ficha.toggleAttribute("droppable")
-            }
-          });
+    fichas.forEach((ficha) => {
+      if (ficha[0] === "B") {
+        ficha.toggleAttribute("droppable");
+      }
+    });
   }
 
   mostrarPosiblesMovimientos() {

@@ -19,7 +19,7 @@ main {
   margin-top: -48px;
 }
 .game h1 {
-  margin-bottom: 48px;
+  margin-bottom: 0;
 }
 
 .tablero {
@@ -49,7 +49,6 @@ main {
 }
 
 .peon{
-    
 }
 
 .hide{
@@ -62,4 +61,13 @@ main {
 
 .dropzone{
   background-color: rgb(104, 224, 104);
+}
+
+.eatzone {
+  background-color: orangered;
+ 
+}
+
+.prey{
+  z-index: -1;
 }

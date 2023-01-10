@@ -12,7 +12,9 @@ class Game {
     this.jugadores[1].turno = true;
     this.jugadores[0].asignarPeones();
     this.jugadores[1].asignarPeones();
+    document.querySelector(".turn").innerHTML = "Turno de Blancas"
     
     
   }
 }
+
