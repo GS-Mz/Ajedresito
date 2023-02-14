@@ -14,11 +14,12 @@ class Ficha {
 }
 
 class PeonNegro extends Ficha {
-  constructor(posicion, id) {
+  constructor(posicion, id, player) {
     super(posicion, id);
     this.fichaMovida = false;
     this.clicked = false;
     this.firstMoveDone = false;
+    this.player = player;
   }
 
   createFicha() {
@@ -100,7 +101,7 @@ class PeonNegro extends Ficha {
           this.firstMoveDone = true;
           newGame.jugadores[0].turno = false;
           newGame.jugadores[1].turno = true;
-          document.querySelector(".turn").innerHTML = "Turno de Blancas";
+          document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Blancas)";
           this.resetMovimientos()
         }
         
@@ -115,7 +116,7 @@ class PeonNegro extends Ficha {
             this.posicionActual = e.target.id;
             newGame.jugadores[0].turno = false;
             newGame.jugadores[1].turno = true;
-            document.querySelector(".turn").innerHTML = "Turno de Blancas";
+            document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Blancas)";
             this.resetMovimientos()
           }
       })
@@ -126,7 +127,7 @@ class PeonNegro extends Ficha {
           e.target.classList.add("undroppable");
         }
         if (e.target.classList.contains("eatzone")) {
-          e.target.childNodes[0].classList.add("invisible");
+          e.target.childNodes[0].classList.add("hide");
         }
         e.preventDefault();
       });
@@ -144,7 +145,7 @@ class PeonNegro extends Ficha {
           e.target.classList.remove("undroppable"); //Le quita el borde cuando el objeto deja de pasar sobre la casilla
         }
         if (e.target.classList.contains("eatzone")) {
-          e.target.childNodes[0].classList.remove("invisible");
+          e.target.childNodes[0].classList.remove("hide");
         }
       });
 
@@ -171,12 +172,12 @@ class PeonNegro extends Ficha {
           !e.target.hasChildNodes()
         ) {
           e.target.appendChild(this.ficha); //Lo agrega al objetivo del evento
-          this.ficha.classList.remove("hide"); //Retiro la clase que lo hace invisible
+          this.ficha.classList.remove("hide"); //Retiro la clase que lo hace hide
           this.posicionActual = e.target.id;
           this.firstMoveDone = true;
           newGame.jugadores[0].turno = false;
           newGame.jugadores[1].turno = true;
-          document.querySelector(".turn").innerHTML = "Turno de Blancas";
+          document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Blancas)";
         }
 
         //---------------------------------------------//
@@ -188,7 +189,7 @@ class PeonNegro extends Ficha {
           this.posicionActual = e.target.id;
           newGame.jugadores[0].turno = false;
           newGame.jugadores[1].turno = true;
-          document.querySelector(".turn").innerHTML = "Turno de Blancas";
+          document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Blancas)";
           e.target.classList.remove("eatzone");
         }
 
@@ -230,11 +231,13 @@ class PeonNegro extends Ficha {
 }
 
 class PeonBlanca extends Ficha {
-  constructor(posicion, id) {
+  constructor(posicion, id, player) {
     super(posicion, id);
     this.fichaMovida = false;
     this.clicked = false;
     this.firstMoveDone = false;
+    this.player = player;
+    this.comestibles = [];
   }
 
   createFicha() {
@@ -297,10 +300,34 @@ class PeonBlanca extends Ficha {
           try {
             if (document.getElementById(e).childNodes[0].id[0] === "N") {
               document.getElementById(e).classList.toggle("eatzone");
+              this.comestibles.push(document.getElementById(e))
             }
           } catch (error){}
         });
       }
+
+      for (const casilla of this.comestibles) {
+        console.log(casilla)
+        casilla.firstChild.addEventListener("click", e =>{
+          if (
+            newGame.jugadores[1].turno &&
+            this.clicked
+            ){
+              console.log("estoy dentro")
+              casilla.removeChild(casilla.firstChild);
+              casilla.appendChild(this.ficha);
+              
+              
+              this.comestibles = [];
+              this.posicionActual = casilla.id;
+              newGame.jugadores[1].turno = false;
+              newGame.jugadores[0].turno = true;
+              document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Negras)";
+              this.resetMovimientos()
+            }
+        })
+      }
+
     });
 
     //Recorro la lista de nodos allCasillas para agregar los eventos a cada casilla
@@ -318,23 +345,10 @@ class PeonBlanca extends Ficha {
           this.firstMoveDone = true;
           newGame.jugadores[1].turno = false;
           newGame.jugadores[0].turno = true;
-          document.querySelector(".turn").innerHTML = "Turno de Negras";
+          document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Negras)";
           this.resetMovimientos()
         }
-        if (
-        casilla.classList.contains("eatzone") && 
-        newGame.jugadores[1].turno &&
-        this.clicked
-        ){
-          casilla.removeChild(casilla.children[0]);
-          casilla.appendChild(this.ficha);
-
-          this.posicionActual = e.target.id;
-          newGame.jugadores[1].turno = false;
-          newGame.jugadores[0].turno = true;
-          document.querySelector(".turn").innerHTML = "Turno de Negras";
-          this.resetMovimientos()
-        }
+        
       })
 
 
@@ -377,12 +391,12 @@ class PeonBlanca extends Ficha {
           !e.target.hasChildNodes()
         ) {
           e.target.appendChild(this.ficha); //Lo agrega al objetivo del evento
-          this.ficha.classList.remove("hide"); //Retiro la clase que lo hace invisible
+          this.ficha.classList.remove("hide"); //Retiro la clase que lo hace hide
           this.posicionActual = e.target.id;
           this.firstMoveDone = true;
           newGame.jugadores[1].turno = false;
           newGame.jugadores[0].turno = true;
-          document.querySelector(".turn").innerHTML = "Turno de Negras";
+          document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Negras)";
         }
 
         //---------------------------------------------//
@@ -394,13 +408,17 @@ class PeonBlanca extends Ficha {
           this.posicionActual = e.target.id;
           newGame.jugadores[1].turno = false;
           newGame.jugadores[0].turno = true;
-          document.querySelector(".turn").innerHTML = "Turno de Negras";
+          document.querySelector(".turn").innerHTML = "Turno de " + this.player + " (Negras)";
           e.target.classList.remove("eatzone");
         }
 
         e.target.classList.remove("undroppable"); //Le quita el borde cuando el objeto es depositado en la casilla
       });
     }
+
+
+    
+
   }
 
 

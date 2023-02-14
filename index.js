@@ -1,5 +1,5 @@
 // new Game
-let newGame = new Game;
+let newGame = new Game("Gonzalo", "Sebastian");
 
 
 

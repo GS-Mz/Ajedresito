@@ -1,7 +1,7 @@
 class Game {
-  constructor() {
+  constructor(p1, p2) {
     this.tablero = new Tablero();
-    this.jugadores = [new JugadorNegras("Gonzalo"), new JugadorBlancas("User")]
+    this.jugadores = [new JugadorNegras(p1), new JugadorBlancas(p2)]
   }
 
   nuevoJuego() {
@@ -12,7 +12,7 @@ class Game {
     this.jugadores[1].turno = true;
     this.jugadores[0].asignarPeones();
     this.jugadores[1].asignarPeones();
-    document.querySelector(".turn").innerHTML = "Turno de Blancas"
+    document.querySelector(".turn").innerHTML = "Turno de " + this.jugadores[1].nombre + " (Blancas)"
     
     
   }
