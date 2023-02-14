@@ -1,5 +1,6 @@
 const tablero = document.querySelector(".tablero");
 const allCasillas = document.querySelectorAll(".tableroCasillero");
+const allFichas = document.querySelectorAll(".ficha");
 
 class Tablero {
   constructor() {
